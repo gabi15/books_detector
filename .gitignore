@@ -1,3 +1,6 @@
 .idea/
 venv/
 after_cropping/
+images/
+preproccess.py
+text.py

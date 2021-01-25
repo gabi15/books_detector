@@ -2,5 +2,5 @@
 venv/
 after_cropping/
 images/
-preproccess.py
-text.py
+words/
+__pychache__/

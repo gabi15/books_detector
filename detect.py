@@ -14,7 +14,7 @@ def count_angle_lines(line):
 
 if __name__ == "__main__":
     # Read image
-    img = cv2.imread(r"images\zdj2.jpg", cv2.IMREAD_COLOR)
+    img = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
     img_1 = cv2.pyrDown(img)
     img = cv2.pyrDown(img_1)
     # Convert the image to gray-scale
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     # cv2.imshow('bbb', clear)
     # cv2.waitKey(0)
 
-    cv2.imwrite("kontury1.jpg", clear)
+    cv2.imwrite("kontury.jpg", clear)
 
     # preprocess before hough transform
     img_read = cv2.imread(r"kontury.jpg")
@@ -60,14 +60,21 @@ if __name__ == "__main__":
     new_list = [line for line in new_list if 70 <= count_angle_lines(line) <= 90]
 
     # find indexes of new_list that will be excluded
-    exclude = []
+
+    tab = [0]
+    idx = 0
     for i in range(len(new_list) - 1):
-        if abs(new_list[i][0][0] - new_list[i + 1][0][0]) < 30:
-            exclude.append(i + 1)
+        idx += 1
+        if abs(new_list[i][0][0] - new_list[i + 1][0][0]) > 30:
+            tab.append(idx)
+    tab.append(len(new_list)-1)
+    new_new_list = []
+    for i in range(len(tab)-1):
+        my_line = max(new_list[tab[i]:tab[i+1]], key=lambda el: abs(el[0][1]-el[0][3]))
+        new_new_list.append(my_line)
 
     # exclude multiple lines that should be represented by a single line
-    new_list = [i for j, i in enumerate(new_list) if j not in exclude]
-
+    new_list = new_new_list
     cropped_images = []
 
     # cutting single books from a shelf
@@ -79,6 +86,7 @@ if __name__ == "__main__":
         crop_img = img_1[:, 2 * min(x1, x2): 2 * max(x3, x4)]  # uzywam obrazka po 1 zmniejszeniu zamiast po dwoch na sam koniec zeby nie tracic jakosci
         cropped_images.append(crop_img)
 
+    print(cropped_images)
     # saving images
     for i, image in enumerate(cropped_images):
         filename = "after_cropping/img" + str(i) + ".jpg"
@@ -89,8 +97,11 @@ if __name__ == "__main__":
         x1, y1, x2, y2 = line[0]
         cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 3)
 
+    cv2.imshow("result",img)
+    cv2.waitKey(0)
+
     for book in cropped_images:
-        rotated = cv2.rotate(book, cv2.cv2.ROTATE_90_CLOCKWISE)
+        rotated = cv2.rotate(book, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
         words_from_rotated = text_area(rotated, True, 9)
         for word in words_from_rotated:
             word = preproccess(word)

@@ -52,9 +52,4 @@ def text_area(image, is_horizontal, save_num):
     # cv2.waitKey(0)
     return list_of_boxes
 
-#normal = cv2.imread('after_cropping/img0.jpg') #pionowe - beda odczytywane wartosci mniejsze z grzbietu
-#rotated = cv2.rotate(normal, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE) #poziome bedzie odczytywany glowny tekst na grzbiecie, dlatego trzeba bedzie jeszcze zmniejszyc obrazek
-
-# pion = text_area(normal, False, 7)
-# poziom = text_area(rotated, True, 9)
 

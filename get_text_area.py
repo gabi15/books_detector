@@ -1,12 +1,12 @@
 import cv2
 import numpy as np
 
-
 def text_area(image, is_horizontal, save_num):
     image_copy = image.copy()
     small = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     small = cv2.pyrDown(small)
-    small = cv2.pyrDown(small)
+    if is_horizontal:
+        small = cv2.pyrDown(small)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     grad = cv2.morphologyEx(small, cv2.MORPH_GRADIENT, kernel)
@@ -17,6 +17,8 @@ def text_area(image, is_horizontal, save_num):
     connected = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel)
     # using RETR_EXTERNAL instead of RETR_CCOMP
     contours, hierarchy = cv2.findContours(connected.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    #For opencv 3+ comment the previous line and uncomment the following line
+    #_, contours, hierarchy = cv2.findContours(connected.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
     mask = np.zeros(bw.shape, dtype=np.uint8)
 
@@ -39,14 +41,14 @@ def text_area(image, is_horizontal, save_num):
                 y1 = 2 * y
                 y2 = 2*(y+h-1)
             list_of_boxes.append(image_copy[y1:y2, x1:x2]) #using copy to avoid green frame
-            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            #cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-    for i, img in enumerate(list_of_boxes):
-        filename = "words/img" + str(save_num) + str(i) + ".jpg"
-        cv2.imwrite(filename, img)
-
-    cv2.imshow('rects', image)
-    cv2.waitKey(0)
+    # for i, img in enumerate(list_of_boxes):
+    #     filename = "words/img" + str(save_num) + str(i) + ".jpg"
+    #     cv2.imwrite(filename, img)
+    #
+    # cv2.imshow('rects', image)
+    # cv2.waitKey(0)
     return list_of_boxes
 
 #normal = cv2.imread('after_cropping/img0.jpg') #pionowe - beda odczytywane wartosci mniejsze z grzbietu
@@ -54,4 +56,3 @@ def text_area(image, is_horizontal, save_num):
 
 # pion = text_area(normal, False, 7)
 # poziom = text_area(rotated, True, 9)
-

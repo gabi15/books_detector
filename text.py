@@ -79,6 +79,7 @@ def print_words(image, config):
     for b in boxes.splitlines()[1:]:
         b = b.split()
         if len(b) == 12:
+            # print(b[11])
             if special_match(b[11]):
                 print(b[11])
 

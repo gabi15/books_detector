@@ -1,12 +1,11 @@
 import cv2
 import numpy as np
 
-def text_area(image, is_horizontal, save_num):
+def text_area(image):
     image_copy = image.copy()
     small = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     small = cv2.pyrDown(small)
-    if is_horizontal:
-        small = cv2.pyrDown(small)
+    small = cv2.pyrDown(small)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     grad = cv2.morphologyEx(small, cv2.MORPH_GRADIENT, kernel)
@@ -30,18 +29,14 @@ def text_area(image, is_horizontal, save_num):
         r = float(cv2.countNonZero(mask[y:y+h, x:x+w])) / (w * h)
 
         if r > 0.45 and w > 8 and h > 8:
-            if is_horizontal:
-                x1 = 4 * x
-                x2 = 4*(x+w-1)
-                y1 = 4 * y
-                y2 = 4*(y+h-1)
-            else:
-                x1 = 2 * x
-                x2 = 2*(x+w-1)
-                y1 = 2 * y
-                y2 = 2*(y+h-1)
-            list_of_boxes.append(image_copy[y1:y2, x1:x2]) #using copy to avoid green frame
-            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            x1 = 4 * x
+            x2 = 4*(x+w-1)
+            y1 = 4 * y
+            y2 = 4*(y+h-1)
+            if(h/w <1):
+                list_of_boxes.append(image_copy[y1:y2, x1:x2])  # using copy to avoid green frame
+                cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
 
     # for i, img in enumerate(list_of_boxes):
     #     filename = "words/img" + str(save_num) + str(i) + ".jpg"

@@ -10,10 +10,19 @@ def count_angle_lines(line):
     angle = abs(math.atan2(abs(y2 - y1), abs(x2 - x1)) * 180.0 / math.pi)
     return angle
 
+def scale_input_photo(photo):
+    h, w, c = photo.shape
+    scale = 3000/h
+    newSize = (int(w * scale), 3000)
+    scaledImg = cv2.resize(photo, newSize)
+    return scaledImg
+
 
 if __name__ == "__main__":
     # Read image
-    img = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
+    # orginalImg = cv2.imread(r"images\toobig02.jpg", cv2.IMREAD_COLOR)
+    # img = scale_input_photo(orginalImg)
+    img = cv2.imread(r"images\toobig02.jpg", cv2.IMREAD_COLOR)
     img_1 = cv2.pyrDown(img)
     img = cv2.pyrDown(img_1)
     # Convert the image to gray-scale
@@ -45,7 +54,7 @@ if __name__ == "__main__":
     # cv2.imshow('bbb', clear)
     # cv2.waitKey(0)
 
-    cv2.imwrite("kontury.jpg", clear)
+    cv2.imwrite("kontury1.jpg", clear)
 
     # preprocess before hough transform
     img_read = cv2.imread(r"kontury1.jpg")
@@ -58,22 +67,34 @@ if __name__ == "__main__":
     new_list = sorted(lines, key=lambda line: line[0][0])
     new_list = [line for line in new_list if 70 <= count_angle_lines(line) <= 90]
 
+    # for i, line in enumerate(new_list):
+    #     x1, y1, x2, y2 = line[0]
+    #     cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 3)
+    #
+    # cv2.imshow("result",img)
+    # cv2.waitKey(0)
+
     # find indexes of new_list that will be excluded
 
     tab = [0]
     idx = 0
     for i in range(len(new_list) - 1):
         idx += 1
-        if abs(new_list[i][0][0] - new_list[i + 1][0][0]) > 30:
+        if abs(new_list[i][0][0] - new_list[i + 1][0][0]) > 20:
             tab.append(idx)
     tab.append(len(new_list)-1)
     new_new_list = []
     for i in range(len(tab)-1):
-        my_line = max(new_list[tab[i]:tab[i+1]], key=lambda el: abs(el[0][1]-el[0][3]))
+        if tab[i] - tab[i+1] == 0:
+            my_line = new_list[tab[i]]
+        else:
+            my_line = max(new_list[tab[i]:tab[i + 1]], key=lambda el: abs(el[0][1] - el[0][3]))
         new_new_list.append(my_line)
 
     # exclude multiple lines that should be represented by a single line
     new_list = new_new_list
+
+
     cropped_images = []
 
     # cutting single books from a shelf
@@ -87,9 +108,9 @@ if __name__ == "__main__":
 
     print(cropped_images)
     # saving images
-    for i, image in enumerate(cropped_images):
-        filename = "after_cropping/img" + str(i) + ".jpg"
-        cv2.imwrite(filename, image)
+    # for i, image in enumerate(cropped_images):
+    #     filename = "after_cropping/img" + str(i) + ".jpg"
+    #     cv2.imwrite(filename, image)
 
     # putting lines on original image to see how algorithm worked
     for i, line in enumerate(new_list):
@@ -101,7 +122,7 @@ if __name__ == "__main__":
 
     for book in cropped_images:
         rotated = cv2.rotate(book, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
-        words_from_rotated = text_area(rotated, True, 9)
+        words_from_rotated = text_area(rotated)
         for word in words_from_rotated:
             word = preproccess(word)
             print_words(word, custom_config)

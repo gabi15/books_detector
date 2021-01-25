@@ -6,8 +6,7 @@ def text_area(image, is_horizontal, save_num):
     image_copy = image.copy()
     small = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     small = cv2.pyrDown(small)
-    if is_horizontal:
-        small = cv2.pyrDown(small)
+    small = cv2.pyrDown(small)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     grad = cv2.morphologyEx(small, cv2.MORPH_GRADIENT, kernel)
@@ -18,8 +17,6 @@ def text_area(image, is_horizontal, save_num):
     connected = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel)
     # using RETR_EXTERNAL instead of RETR_CCOMP
     contours, hierarchy = cv2.findContours(connected.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    #For opencv 3+ comment the previous line and uncomment the following line
-    #_, contours, hierarchy = cv2.findContours(connected.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
     mask = np.zeros(bw.shape, dtype=np.uint8)
 

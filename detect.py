@@ -1,8 +1,8 @@
 import numpy as np
 import cv2
 import math
-from get_text_area import text_area
-from text import preproccess, print_words
+from books_detector.get_text_area import text_area
+from books_detector.text import preproccess, print_words
 import pytesseract
 
 
@@ -14,7 +14,7 @@ def count_angle(line):
 
 if __name__ == "__main__":
     # Read image
-    img = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
+    img = cv2.imread(r"images\resized4.jpg", cv2.IMREAD_COLOR)
     #img = cv2.resize(img, (670, 1000), interpolation=cv2.INTER_AREA)
     img_1 = cv2.pyrDown(img)
     img = cv2.pyrDown(img_1)
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     edges = cv2.Canny(gray, 50, 200)
 
     # Detect points that form a line
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 150, minLineLength=300, maxLineGap=200)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 80, minLineLength=200, maxLineGap=40)
 
     # Sort lines by x values
     new_list = sorted(lines, key=lambda line: line[0][0])
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     # find indexes of new_list that will be excluded
     exclude = []
     for i in range(len(new_list) - 1):
-        if abs(new_list[i][0][0] - new_list[i + 1][0][0]) < 35:
+        if abs(new_list[i][0][0] - new_list[i + 1][0][0]) < 15:
             exclude.append(i + 1)
 
     # exclude multiple lines that should be represented by a single line
@@ -65,16 +65,14 @@ if __name__ == "__main__":
         cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 3)
 
     # Show result
-    # cv2.imshow("Result Image", img)
-    # cv2.waitKey(0)
+    cv2.imshow("Result Image", img)
+    cv2.waitKey(0)
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
     custom_config = r'--oem 3 --psm 6'
     for book in cropped_images:
         rotated = cv2.rotate(book, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
-        words = text_area(book, False, 8)
         words_from_rotated = text_area(rotated, True, 9)
-        all_words = words + words_from_rotated
-        for word in all_words:
+        for word in words_from_rotated:
             word = preproccess(word)
             print_words(word, custom_config)
         print('-------------------------------')
@@ -82,5 +80,3 @@ if __name__ == "__main__":
     # rotated = cv2.rotate(cropped_images[2], cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
     # words = text_area(cropped_images[2], False, 1)
     # words_from_rotated = text_area(rotated, True, 2)
-
-

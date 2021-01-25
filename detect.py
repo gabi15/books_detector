@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import math
+from get_text_area import text_area
 
 
 def count_angle(line):
@@ -12,7 +13,9 @@ def count_angle(line):
 if __name__ == "__main__":
     # Read image
     img = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
-    img = cv2.resize(img, (1000, 670), interpolation=cv2.INTER_AREA)
+    #img = cv2.resize(img, (670, 1000), interpolation=cv2.INTER_AREA)
+    img_1 = cv2.pyrDown(img)
+    img = cv2.pyrDown(img_1)
 
     # Convert the image to gray-scale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -46,7 +49,7 @@ if __name__ == "__main__":
         x2 = new_list[i][0][2]
         x3 = new_list[i + 1][0][0]
         x4 = new_list[i + 1][0][2]
-        crop_img = img[:, min(x1, x2): max(x3, x4)]
+        crop_img = img_1[:, 2*min(x1, x2): 2*max(x3, x4)] # uzywam obrazka po 1 zmniejszeniu zamiast po dwoch na sam koniec zeby nie tracic jakosci
         cropped_images.append(crop_img)
 
     # saving images
@@ -60,8 +63,13 @@ if __name__ == "__main__":
         cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 3)
 
     # Show result
-    cv2.imshow("Result Image", img)
-    cv2.waitKey(0)
+    # cv2.imshow("Result Image", img)
+    # cv2.waitKey(0)
+
+    #test if it works for an exaple
+    rotated = cv2.rotate(cropped_images[0], cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
+    text_area(cropped_images[0], False, 8)
+    text_area(rotated, True, 9)
 
 
 

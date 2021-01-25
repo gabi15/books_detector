@@ -1,48 +1,13 @@
-# import cv2
-# import numpy as np
-# import pytesseract
-#
-# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-# img = cv2.imread('after_cropping/img0.jpg')
-# hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-# lower = np.array([0, 0, 218])
-# upper = np.array([157, 54, 255])
-# mask = cv2.inRange(hsv, lower, upper)
-#
-# # Create horizontal kernel and dilate to connect text characters
-# kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,3))
-# dilate = cv2.dilate(mask, kernel, iterations=5)
-#
-# # Find contours and filter using aspect ratio
-# # Remove non-text contours by filling in the contour
-# cnts = cv2.findContours(dilate, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-# cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-# for c in cnts:
-#     x,y,w,h = cv2.boundingRect(c)
-#     ar = w / float(h)
-#     if ar < 5:
-#         cv2.drawContours(dilate, [c], -1, (0,0,0), -1)
-#
-#
-# # Bitwise dilated image with mask, invert, then OCR
-# result = 255 - cv2.bitwise_and(dilate, mask)
-# data = pytesseract.image_to_string(result, lang='eng',config='--psm 6')
-# print(data)
-# cv2.imshow("Result Image", dilate)
-# cv2.waitKey(0)
 import cv2
 import numpy as np
 
-large1 = cv2.imread('images/img0.jpg')
-small1 = cv2.pyrDown(large1)
-large2 = cv2.imread('after_cropping/img0.jpg')
-small2 = cv2.pyrDown(large2)
-#cv2.imshow("downsized", rgb)
 
-
-
-def text_area(rgb):
-    small = cv2.cvtColor(rgb, cv2.COLOR_BGR2GRAY)
+def text_area(image, is_horizontal, save_num):
+    image_copy = image.copy()
+    small = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    small = cv2.pyrDown(small)
+    if is_horizontal:
+        small = cv2.pyrDown(small)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     grad = cv2.morphologyEx(small, cv2.MORPH_GRADIENT, kernel)
@@ -58,6 +23,7 @@ def text_area(rgb):
 
     mask = np.zeros(bw.shape, dtype=np.uint8)
 
+    list_of_boxes = []
     for idx in range(len(contours)):
         x, y, w, h = cv2.boundingRect(contours[idx])
         mask[y:y+h, x:x+w] = 0
@@ -65,13 +31,30 @@ def text_area(rgb):
         r = float(cv2.countNonZero(mask[y:y+h, x:x+w])) / (w * h)
 
         if r > 0.45 and w > 8 and h > 8:
-            cv2.rectangle(rgb, (x, y), (x+w-1, y+h-1), (0, 255, 0), 2)
+            if is_horizontal:
+                x1 = 4 * x
+                x2 = 4*(x+w-1)
+                y1 = 4 * y
+                y2 = 4*(y+h-1)
+            else:
+                x1 = 2 * x
+                x2 = 2*(x+w-1)
+                y1 = 2 * y
+                y2 = 2*(y+h-1)
+            list_of_boxes.append(image_copy[y1:y2, x1:x2]) #using copy to avoid green frame
+            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-    cv2.imshow('rects', rgb)
+    for i, img in enumerate(list_of_boxes):
+        filename = "words/img" + str(save_num) + str(i) + ".jpg"
+        cv2.imwrite(filename, img)
+
+    cv2.imshow('rects', image)
     cv2.waitKey(0)
+    return list_of_boxes
 
+#normal = cv2.imread('after_cropping/img0.jpg') #pionowe - beda odczytywane wartosci mniejsze z grzbietu
+#rotated = cv2.rotate(normal, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE) #poziome bedzie odczytywany glowny tekst na grzbiecie, dlatego trzeba bedzie jeszcze zmniejszyc obrazek
 
-text_area(small1)
-# text_area(large1)
-# text_area(small2)
-text_area(large2)
+# pion = text_area(normal, False, 7)
+# poziom = text_area(rotated, True, 9)
+

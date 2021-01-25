@@ -54,14 +54,8 @@ if __name__ == "__main__":
     # cv2.imshow('bbb', clear)
     # cv2.waitKey(0)
 
-    cv2.imwrite("kontury1.jpg", clear)
-
-    # preprocess before hough transform
-    img_read = cv2.imread(r"kontury1.jpg")
-    gray = cv2.cvtColor(img_read, cv2.COLOR_BGR2GRAY)
-
     # Find the edges in the image using canny detector
-    edges = cv2.Canny(gray, 50, 200)
+    edges = cv2.Canny(clear, 50, 200)
 
     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 150, minLineLength=100, maxLineGap=20)
     new_list = sorted(lines, key=lambda line: line[0][0])

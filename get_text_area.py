@@ -41,14 +41,14 @@ def text_area(image, is_horizontal, save_num):
                 y1 = 2 * y
                 y2 = 2*(y+h-1)
             list_of_boxes.append(image_copy[y1:y2, x1:x2]) #using copy to avoid green frame
-            #cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
     # for i, img in enumerate(list_of_boxes):
     #     filename = "words/img" + str(save_num) + str(i) + ".jpg"
     #     cv2.imwrite(filename, img)
-    #
-    # cv2.imshow('rects', image)
-    # cv2.waitKey(0)
+
+    cv2.imshow('rects', image)
+    cv2.waitKey(0)
     return list_of_boxes
 
 #normal = cv2.imread('after_cropping/img0.jpg') #pionowe - beda odczytywane wartosci mniejsze z grzbietu

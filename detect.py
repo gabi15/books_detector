@@ -13,7 +13,7 @@ def count_angle_lines(line):
 
 if __name__ == "__main__":
     # Read image
-    img = cv2.imread(r"images\zdj2.jpg", cv2.IMREAD_COLOR)
+    img = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
     img_1 = cv2.pyrDown(img)
     img = cv2.pyrDown(img_1)
     # Convert the image to gray-scale
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     cv2.imwrite("kontury1.jpg", clear)
 
     # preprocess before hough transform
-    img_read = cv2.imread(r"kontury.jpg")
+    img_read = cv2.imread(r"kontury1.jpg")
     gray = cv2.cvtColor(img_read, cv2.COLOR_BGR2GRAY)
 
     # Find the edges in the image using canny detector
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 3)
 
     for book in cropped_images:
-        rotated = cv2.rotate(book, cv2.cv2.ROTATE_90_CLOCKWISE)
+        rotated = cv2.rotate(book, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
         words_from_rotated = text_area(rotated, True, 9)
         for word in words_from_rotated:
             word = preproccess(word)

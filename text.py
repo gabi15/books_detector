@@ -69,8 +69,8 @@ def special_match(strg, search=re.compile(r"[^a-zA-Z0-9.']").search):
 def preproccess(image):
     gray = get_grayscale(image)
     thresh = thresholding(gray)
-    # cv2.imshow("Result Image", thresh)
-    # cv2.waitKey(0)
+    cv2.imshow("Result Image", thresh)
+    cv2.waitKey(0)
     return thresh
 
 

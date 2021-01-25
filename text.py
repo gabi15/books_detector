@@ -66,21 +66,40 @@ def special_match(strg, search=re.compile(r"[^a-zA-Z0-9.']").search):
     return not bool(search(strg))
 
 
+def preproccess(image):
+    gray = get_grayscale(image)
+    thresh = thresholding(gray)
+    cv2.imshow("Result Image", thresh)
+    cv2.waitKey(0)
+    return thresh
+
+
+def print_words(image, config):
+    boxes = pytesseract.image_to_data(image, config=config)
+    for b in boxes.splitlines()[1:]:
+        b = b.split()
+        if len(b) == 12:
+            if special_match(b[11]):
+                print(b[11])
+
 # passing cropped words
 if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
     # Adding custom options
     custom_config = r'--oem 3 --psm 6'
-    img = cv2.imread('words/img60.jpg')
-    gray = get_grayscale(img)
-    thresh = thresholding(gray)
-    opening = opening(gray)
-    canny = canny(gray)
-    img = thresh
+    img = cv2.imread('words/img52.jpg')
+    img = preproccess(img)
+    print_words(img,custom_config)
 
-    hImg, wImg = img.shape
-    p_str = pytesseract.image_to_string(img, config=custom_config)
+    # gray = get_grayscale(img)
+    # thresh = thresholding(gray)
+    # opening = opening(gray)
+    # canny = canny(gray)
+    # img = thresh
+
+    #hImg, wImg = img.shape
+    #p_str = pytesseract.image_to_string(img, config=custom_config)
 
     # for b in boxes.splitlines():
     #     b = b.split(" ")
@@ -88,13 +107,15 @@ if __name__ == "__main__":
     #     x,y,w,h = int(b[1]),int(b[2]),int(b[3]),int(b[4])
     #     cv2.rectangle(img, (x,hImg-y),(w,hImg-h),(0,0,255),1)
 
-    boxes = pytesseract.image_to_data(img, config=custom_config)
-    for x, b in enumerate(boxes.splitlines()):
-        if x != 0:
-            b = b.split()
-            if len(b) == 12:
-                if special_match(b[11]):
-                    print(b[11])
+    # boxes = pytesseract.image_to_data(img, config=custom_config)
+    # for b in boxes.splitlines()[1:]:
+    #     b = b.split()
+    #     if len(b) == 12:
+    #         if special_match(b[11]):
+    #             print(b[11])
 
-    cv2.imshow("Result Image", img)
-    cv2.waitKey(0)
+    # cv2.imshow("Result Image", img)
+    # cv2.waitKey(0)
+
+
+

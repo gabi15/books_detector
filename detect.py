@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 import math
 from get_text_area import text_area
+from text import preproccess, print_words
+import pytesseract
 
 
 def count_angle(line):
@@ -65,11 +67,20 @@ if __name__ == "__main__":
     # Show result
     # cv2.imshow("Result Image", img)
     # cv2.waitKey(0)
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    custom_config = r'--oem 3 --psm 6'
+    for book in cropped_images:
+        rotated = cv2.rotate(book, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
+        words = text_area(book, False, 8)
+        words_from_rotated = text_area(rotated, True, 9)
+        all_words = words + words_from_rotated
+        for word in all_words:
+            word = preproccess(word)
+            print_words(word, custom_config)
+        print('-------------------------------')
 
-    #test if it works for an exaple
-    rotated = cv2.rotate(cropped_images[0], cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
-    text_area(cropped_images[0], False, 8)
-    text_area(rotated, True, 9)
-
+    # rotated = cv2.rotate(cropped_images[2], cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
+    # words = text_area(cropped_images[2], False, 1)
+    # words_from_rotated = text_area(rotated, True, 2)
 
 

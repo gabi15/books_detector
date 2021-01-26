@@ -62,22 +62,30 @@ def match_template(image, template):
     return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
 
 
-def special_match(strg, search=re.compile(r"[^a-zA-Z0-9.']").search):
+def special_match(strg, search=re.compile(r"[^a-zA-Z0-9.'!?]").search):
     return not bool(search(strg))
 
 
 def preproccess(image):
-    gray = get_grayscale(image)
-    thresh = thresholding(gray)
-    # cv2.imshow("Result Image", thresh)
-    # cv2.waitKey(0)
-    return thresh
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    kernel = np.ones((1, 1))
+    img = cv2.dilate(img, kernel, iterations=1)
+    img = cv2.erode(img, kernel, iterations=1)
+    img = cv2.GaussianBlur(img, (5, 5), 0)
+    img = cv2.medianBlur(img, 5)
+    img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    cv2.imshow("Result Image", img)
+    cv2.waitKey(0)
+    return img
+
+
 
 
 def print_words(image, config):
     boxes = pytesseract.image_to_data(image, config=config)
     for b in boxes.splitlines()[1:]:
         b = b.split()
+        print(b)
         if len(b) == 12:
             if special_match(b[11]):
                 print(b[11])

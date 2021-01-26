@@ -14,7 +14,7 @@ def count_angle_lines(line):
 
 if __name__ == "__main__":
     # Read image
-    img = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
+    img = cv2.imread(r"images\img4.jpg", cv2.IMREAD_COLOR)
     img_1 = cv2.pyrDown(img)
     img = cv2.pyrDown(img_1)
     # Convert the image to gray-scale
@@ -46,14 +46,9 @@ if __name__ == "__main__":
     # cv2.imshow('bbb', clear)
     # cv2.waitKey(0)
 
-    cv2.imwrite("kontury.jpg", clear)
-
     # preprocess before hough transform
-    img_read = cv2.imread(r"kontury.jpg")
-    gray = cv2.cvtColor(img_read, cv2.COLOR_BGR2GRAY)
-
     # Find the edges in the image using canny detector
-    edges = cv2.Canny(gray, 50, 200)
+    edges = cv2.Canny(clear, 50, 200)
 
     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 150, minLineLength=100, maxLineGap=20)
     new_list = sorted(lines, key=lambda line: line[0][0])
@@ -68,6 +63,7 @@ if __name__ == "__main__":
         if abs(new_list[i][0][0] - new_list[i + 1][0][0]) > 30:
             tab.append(idx)
     tab.append(len(new_list)-1)
+
     new_new_list = []
     for i in range(len(tab)-1):
         my_line = max(new_list[tab[i]:tab[i+1]], key=lambda el: abs(el[0][1]-el[0][3]))
@@ -86,7 +82,6 @@ if __name__ == "__main__":
         crop_img = img_1[:, 2 * min(x1, x2): 2 * max(x3, x4)]  # uzywam obrazka po 1 zmniejszeniu zamiast po dwoch na sam koniec zeby nie tracic jakosci
         cropped_images.append(crop_img)
 
-    print(cropped_images)
     # saving images
     for i, image in enumerate(cropped_images):
         filename = "after_cropping/img" + str(i) + ".jpg"

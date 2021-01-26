@@ -42,8 +42,8 @@ def text_area(image):
     #     filename = "words/img" + str(save_num) + str(i) + ".jpg"
     #     cv2.imwrite(filename, img)
 
-    cv2.imshow('rects', image)
-    cv2.waitKey(0)
+    # cv2.imshow('rects', image)
+    # cv2.waitKey(0)
     return list_of_boxes
 
 

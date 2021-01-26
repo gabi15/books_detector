@@ -32,7 +32,7 @@ if __name__ == "__main__":
     edges = cv2.Canny(gray, 50, 200)
 
     # including pytesseract part
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    pytesseract.pytesseract.tesseract_cmd = r'Tesseract-OCR/tesseract.exe'
     custom_config = r'--oem 3 --psm 6'
 
     new_contours = []

@@ -22,7 +22,6 @@ if __name__ == "__main__":
     # Read image
     orginalImg = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
     img = scale_input_photo(orginalImg)
-    # img = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
     img_1 = cv2.pyrDown(img)
     img = cv2.pyrDown(img_1)
     # Convert the image to gray-scale

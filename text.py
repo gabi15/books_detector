@@ -67,24 +67,27 @@ def special_match(strg, search=re.compile(r"[^a-zA-Z0-9.']").search):
 
 
 def preproccess(image):
-    gray = get_grayscale(image)
-    thresh = thresholding(gray)
-    sum = thresh[0][0]/255 + thresh[0][-1]/255 + thresh[-1][0]/255 + thresh[-1][-1]/255
-    if sum < 2 :
-        thresh = np.invert(thresh)
-    cv2.imshow("Result Image", thresh)
+    # sum = thresh[0][0]/255 + thresh[0][-1]/255 + thresh[-1][0]/255 + thresh[-1][-1]/255
+    # if sum < 2 :
+    #     thresh = np.invert(thresh)
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    kernel = np.ones((1, 1))
+    img = cv2.dilate(img, kernel, iterations=1)
+    img = cv2.erode(img, kernel, iterations=1)
+    # img = cv2.GaussianBlur(img, (5, 5), 0)
+    # img = cv2.medianBlur(img, 5)
+    img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    cv2.imshow("Result Image", img)
     cv2.waitKey(0)
-    return thresh
+    return img
 
 
 def print_words(image, config):
     boxes = pytesseract.image_to_data(image, config=config)
     for b in boxes.splitlines()[1:]:
         b = b.split()
-        if len(b) == 12:
-            # print(b[11])
-            if special_match(b[11]):
-                print(b[11])
+        if len(b) == 12 and len(b[11])>2:
+            print(b[11])
 
 
 # passing cropped words
@@ -93,9 +96,9 @@ if __name__ == "__main__":
 
     # Adding custom options
     custom_config = r'--oem 3 --psm 6'
-    img = cv2.imread('words/img52.jpg')
-    img = preproccess(img)
-    print_words(img,custom_config)
+    # img = cv2.imread('words/img52.jpg')
+    # img = preproccess(img)
+    # print_words(img,custom_config)
 
     # gray = get_grayscale(img)
     # thresh = thresholding(gray)

@@ -20,9 +20,9 @@ def scale_input_photo(photo):
 
 if __name__ == "__main__":
     # Read image
-    # orginalImg = cv2.imread(r"images\toobig02.jpg", cv2.IMREAD_COLOR)
-    # img = scale_input_photo(orginalImg)
-    img = cv2.imread(r"images\toobig02.jpg", cv2.IMREAD_COLOR)
+    orginalImg = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
+    img = scale_input_photo(orginalImg)
+    # img = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
     img_1 = cv2.pyrDown(img)
     img = cv2.pyrDown(img_1)
     # Convert the image to gray-scale
@@ -100,7 +100,6 @@ if __name__ == "__main__":
         crop_img = img_1[:, 2 * min(x1, x2): 2 * max(x3, x4)]  # uzywam obrazka po 1 zmniejszeniu zamiast po dwoch na sam koniec zeby nie tracic jakosci
         cropped_images.append(crop_img)
 
-    print(cropped_images)
     # saving images
     # for i, image in enumerate(cropped_images):
     #     filename = "after_cropping/img" + str(i) + ".jpg"

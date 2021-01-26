@@ -67,9 +67,6 @@ def special_match(strg, search=re.compile(r"[^a-zA-Z0-9.']").search):
 
 
 def preproccess(image):
-    # sum = thresh[0][0]/255 + thresh[0][-1]/255 + thresh[-1][0]/255 + thresh[-1][-1]/255
-    # if sum < 2 :
-    #     thresh = np.invert(thresh)
     img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     kernel = np.ones((1, 1))
     img = cv2.dilate(img, kernel, iterations=1)
@@ -77,50 +74,21 @@ def preproccess(image):
     # img = cv2.GaussianBlur(img, (5, 5), 0)
     # img = cv2.medianBlur(img, 5)
     img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-    cv2.imshow("Result Image", img)
-    cv2.waitKey(0)
+    sum = img[0][0]/255 + img[0][-1]/255 + img[-1][0]/255 + img[-1][-1]/255
+    if sum < 2 :
+        img = np.invert(img)
+    # cv2.imshow("Result Image", img)
+    # cv2.waitKey(0)
     return img
 
 
 def print_words(image, config):
     boxes = pytesseract.image_to_data(image, config=config)
+    result = ''
     for b in boxes.splitlines()[1:]:
         b = b.split()
         if len(b) == 12 and len(b[11])>2:
-            print(b[11])
+            result += b[11] + ' '
+    return result
 
 
-# passing cropped words
-if __name__ == "__main__":
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
-    # Adding custom options
-    custom_config = r'--oem 3 --psm 6'
-    # img = cv2.imread('words/img52.jpg')
-    # img = preproccess(img)
-    # print_words(img,custom_config)
-
-    # gray = get_grayscale(img)
-    # thresh = thresholding(gray)
-    # opening = opening(gray)
-    # canny = canny(gray)
-    # img = thresh
-
-    #hImg, wImg = img.shape
-    #p_str = pytesseract.image_to_string(img, config=custom_config)
-
-    # for b in boxes.splitlines():
-    #     b = b.split(" ")
-    #     print(b)
-    #     x,y,w,h = int(b[1]),int(b[2]),int(b[3]),int(b[4])
-    #     cv2.rectangle(img, (x,hImg-y),(w,hImg-h),(0,0,255),1)
-
-    # boxes = pytesseract.image_to_data(img, config=custom_config)
-    # for b in boxes.splitlines()[1:]:
-    #     b = b.split()
-    #     if len(b) == 12:
-    #         if special_match(b[11]):
-    #             print(b[11])
-
-    # cv2.imshow("Result Image", img)
-    # cv2.waitKey(0)

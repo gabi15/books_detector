@@ -18,9 +18,9 @@ def scale_input_photo(photo):
     return scaledImg
 
 
-if __name__ == "__main__":
+def detect(fileName):
     # Read image
-    orginalImg = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
+    orginalImg = cv2.imread(fileName, cv2.IMREAD_COLOR)
     img = scale_input_photo(orginalImg)
     img_1 = cv2.pyrDown(img)
     img = cv2.pyrDown(img_1)
@@ -109,13 +109,19 @@ if __name__ == "__main__":
         x1, y1, x2, y2 = line[0]
         cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 3)
 
-    cv2.imshow("result",img)
-    cv2.waitKey(0)
+    # cv2.imshow("result",img)
+    # cv2.waitKey(0)
+
+    books_array =[]
 
     for book in cropped_images:
         rotated = cv2.rotate(book, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
         words_from_rotated = text_area(rotated)
+        book_name=''
         for word in words_from_rotated:
             word = preproccess(word)
-            print_words(word, custom_config)
-        print('-------------------------------')
+            book_name += print_words(word, custom_config) + ''
+        if book_name != '':
+            books_array.append(book_name)
+
+    return books_array

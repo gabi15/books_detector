@@ -1,9 +1,133 @@
 import numpy as np
 import cv2
 import math
-from books_detector.get_text_area import text_area
-from books_detector.text import preproccess, print_words
+import re
+# from books_detector.get_text_area import text_area
+# from books_detector.text import preproccess, print_words
 import pytesseract
+
+# get grayscale image
+def get_grayscale(image):
+    return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# noise removal
+def remove_noise(image):
+    return cv2.medianBlur(image, 5)
+
+
+# thresholding
+def thresholding(image):
+    return cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+
+
+# dilation
+def dilate(image):
+    kernel = np.ones((5, 5), np.uint8)
+    return cv2.dilate(image, kernel, iterations=1)
+
+
+# erosion
+def erode(image):
+    kernel = np.ones((5, 5), np.uint8)
+    return cv2.erode(image, kernel, iterations=1)
+
+
+# opening - erosion followed by dilation
+def opening(image):
+    kernel = np.ones((5, 5), np.uint8)
+    return cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
+
+
+# canny edge detection
+def canny(image):
+    return cv2.Canny(image, 100, 200)
+
+
+# skew correction
+def deskew(image):
+    coords = np.column_stack(np.where(image > 0))
+    angle = cv2.minAreaRect(coords)[-1]
+    if angle < -45:
+        angle = -(90 + angle)
+    else:
+        angle = -angle
+    (h, w) = image.shape[:2]
+    center = (w // 2, h // 2)
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
+    return rotated
+
+
+# template matching
+def match_template(image, template):
+    return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
+
+
+def special_match(strg, search=re.compile(r"[^a-zA-Z0-9.']").search):
+    return not bool(search(strg))
+
+
+def preproccess(image):
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    kernel = np.ones((1, 1))
+    img = cv2.dilate(img, kernel, iterations=1)
+    img = cv2.erode(img, kernel, iterations=1)
+    # img = cv2.GaussianBlur(img, (5, 5), 0)
+    # img = cv2.medianBlur(img, 5)
+    img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    sum = img[0][0]/255 + img[0][-1]/255 + img[-1][0]/255 + img[-1][-1]/255
+    if sum < 2 :
+        img = np.invert(img)
+    return img
+
+
+def print_words(image, config):
+    boxes = pytesseract.image_to_data(image, config=config)
+    result = ''
+    for b in boxes.splitlines()[1:]:
+        b = b.split()
+        if len(b) == 12 and len(b[11])>2:
+            result += b[11] + ' '
+    return result
+
+def text_area(image):
+    image_copy = image.copy()
+    small = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    small = cv2.pyrDown(small)
+    small = cv2.pyrDown(small)
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    grad = cv2.morphologyEx(small, cv2.MORPH_GRADIENT, kernel)
+
+    _, bw = cv2.threshold(grad, 0.0, 255.0, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 1))
+    connected = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel)
+    # using RETR_EXTERNAL instead of RETR_CCOMP
+    contours, hierarchy = cv2.findContours(connected.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+    mask = np.zeros(bw.shape, dtype=np.uint8)
+
+    list_of_boxes = []
+    for idx in range(len(contours)):
+        x, y, w, h = cv2.boundingRect(contours[idx])
+        mask[y:y+h, x:x+w] = 0
+        cv2.drawContours(mask, contours, idx, (255, 255, 255), -1)
+        r = float(cv2.countNonZero(mask[y:y+h, x:x+w])) / (w * h)
+
+        if r > 0.45 and w > 8 and h > 6:
+            x1 = 4 * x
+            x2 = 4*(x+w-1)
+            y1 = 4 * y
+            y2 = 4*(y+h-1)
+            if(h/w <1):
+                list_of_boxes.append(image_copy[y1:y2, x1:x2])  # using copy to avoid green frame
+                cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+    return list_of_boxes
+
+
+
 
 def count_angle_lines(line):
     x1, y1, x2, y2 = line[0]

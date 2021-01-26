@@ -107,8 +107,8 @@ class AppWindow(Ui_MainWindow):
     def showPopup(self):
         self.msg = QtWidgets.QMessageBox()
         self.msg.setIcon(QtWidgets.QMessageBox.Warning)
-        self.msg.setWindowTitle("Rozmiar ma znaczenie")
-        self.msg.setText("Dej większe zdjęcie!")
+        self.msg.setWindowTitle("Odrzucono zdjecie")
+        self.msg.setText("Minimalna wysokosc zdjecia to 3000px!")
         x = self.msg.exec_()
 
     def showPhoto(self, fileName):

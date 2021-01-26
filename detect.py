@@ -1,8 +1,8 @@
 import numpy as np
 import cv2
 import math
-from books_detector.get_text_area import text_area
-from books_detector.text import preproccess, print_words
+from get_text_area import text_area
+from text import preproccess, print_words
 import pytesseract
 
 def count_angle_lines(line):
@@ -20,9 +20,9 @@ def scale_input_photo(photo):
 
 if __name__ == "__main__":
     # Read image
-    # orginalImg = cv2.imread(r"images\toobig02.jpg", cv2.IMREAD_COLOR)
-    # img = scale_input_photo(orginalImg)
-    img = cv2.imread(r"images\toobig02.jpg", cv2.IMREAD_COLOR)
+    orginalImg = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
+    img = scale_input_photo(orginalImg)
+    #img = cv2.imread(r"images\books.jpg", cv2.IMREAD_COLOR)
     img_1 = cv2.pyrDown(img)
     img = cv2.pyrDown(img_1)
     # Convert the image to gray-scale

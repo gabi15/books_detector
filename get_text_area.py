@@ -28,7 +28,7 @@ def text_area(image):
         cv2.drawContours(mask, contours, idx, (255, 255, 255), -1)
         r = float(cv2.countNonZero(mask[y:y+h, x:x+w])) / (w * h)
 
-        if r > 0.45 and w > 8 and h > 8:
+        if r > 0.45 and w > 8 and h > 6:
             x1 = 4 * x
             x2 = 4*(x+w-1)
             y1 = 4 * y

@@ -2,6 +2,5 @@
 venv/
 after_cropping/
 images/
-words/
 __pycache__/
 Tesseract-OCR/

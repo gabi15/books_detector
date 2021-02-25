@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from detect import detect
 import sys
 import cv2
 
@@ -26,6 +27,7 @@ class Ui_MainWindow(object):
         self.imgLabel = QtWidgets.QLabel(self.inputphoto)
         self.imgLabel.setGeometry(QtCore.QRect(10, 10, 551, 331))
         self.imgLabel.setObjectName("imgLabel")
+
         self.line = QtWidgets.QFrame(self.centralwidget)
         self.line.setGeometry(QtCore.QRect(0, 320, 571, 20))
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
@@ -42,6 +44,9 @@ class Ui_MainWindow(object):
         self.fileNameLabel = QtWidgets.QLabel(self.centralwidget)
         self.fileNameLabel.setGeometry(QtCore.QRect(80, 160, 400, 15))
         self.fileNameLabel.setObjectName("fileNameLabel")
+        self.bookCountWidget = QtWidgets.QLabel(self.centralwidget)
+        self.bookCountWidget.setGeometry(QtCore.QRect(80, 260, 400, 15))
+        self.bookCountWidget.setObjectName("bookCountWidget")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1121, 26))
@@ -61,6 +66,7 @@ class Ui_MainWindow(object):
         self.getBooksBtn.setText(_translate("MainWindow", "Wyświetl listę książek"))
         self.label.setText(_translate("MainWindow", "Dodaj zdjęcie swojej półki z książkami, aby uzyskać listę ich tytułów!"))
         self.fileNameLabel.setText(_translate("MainWindow", "--filename--"))
+        self.bookCountWidget.setText(_translate("MainWindow", "Ciekawe ile ksiazek uda nam się odnalezc..."))
         self.imgLabel.setText(_translate("MainWindow", "img placeholder"))
 
 
@@ -72,6 +78,8 @@ class AppWindow(Ui_MainWindow):
 
         self.chooseFileBtn.clicked.connect(self.getPhoto)
         self.getBooksBtn.clicked.connect(self.processPhoto)
+
+        self.fileName = ''
 
         window.show()
         sys.exit(app.exec_())
@@ -86,10 +94,22 @@ class AppWindow(Ui_MainWindow):
             "Image files (*.jpg *.png)",
             options=options)
 
+        self.fileName = fileName
         self.image = cv2.imread(fileName)
-        self.fileNameLabel.setText(fileName)
+        h, w, c = self.image.shape
+        if h < 2999:
+            print("za male zdjecie")
+            self.showPopup()
+        else:
+            self.fileNameLabel.setText(fileName)
+            self.showPhoto(fileName)
 
-        self.showPhoto(fileName)
+    def showPopup(self):
+        self.msg = QtWidgets.QMessageBox()
+        self.msg.setIcon(QtWidgets.QMessageBox.Warning)
+        self.msg.setWindowTitle("Odrzucono zdjecie")
+        self.msg.setText("Minimalna wysokosc zdjecia to 3000px!")
+        x = self.msg.exec_()
 
     def showPhoto(self, fileName):
         pixmap = QtGui.QPixmap(fileName)
@@ -98,9 +118,12 @@ class AppWindow(Ui_MainWindow):
         else:
             pixmap = pixmap.scaledToWidth(570)
         self.imgLabel.setPixmap(pixmap)
+        self.listWidget.clear()
+        self.bookCountWidget.setText("Ciekawe ile ksiazek uda nam się odnalezc...")
 
     def processPhoto(self):
-        entries = ['one', 'two', 'three']
+        entries = detect(self.fileName)
+        self.bookCountWidget.setText("Na twoim zdjeciu udalo nam się znalezc " + str(len(entries)) + " ksiazek!")
         self.listWidget.addItems(entries)
 
 

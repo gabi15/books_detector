@@ -123,7 +123,6 @@ def text_area(image):
             if(h/w <1):
                 list_of_boxes.append(image_copy[y1:y2, x1:x2])  # using copy to avoid green frame
                 cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
     return list_of_boxes
 
 
@@ -174,7 +173,7 @@ def detect(fileName):
     clear = np.ones([hImg, wImg])
     cv2.drawContours(clear, new_list, -1, (0, 0, 0), 3)
     clear = clear.astype('uint8')*255
-    # cv2.imshow('bbb', clear)
+    # cv2.imshow('kontury', clear)
     # cv2.waitKey(0)
 
     # Find the edges in the image using canny detector

@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from books_detector.detect import detect
+from detect import detect
 import sys
 import cv2
 
